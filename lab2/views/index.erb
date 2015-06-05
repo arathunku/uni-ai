@@ -1,0 +1,75 @@
+<head>
+  <title> Sudoku</title>
+  <style>
+    li {
+      line-height: 24px;
+    }
+    .column-container {
+      display: block;
+      clear: both;
+      height: 300px;
+    }
+
+    .column-left {
+      width: 400px;
+      float: left;
+      display: inline-block;
+    }
+    .column-right {
+      width: 400px;
+      display: inline-block;
+    }
+
+    .input-number {
+      width: 20px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="column-container">
+    <div class="column-left">
+      <form action="/" method="get">
+        <table class='sudoku'>
+          <% query_board.each_slice(9).each_with_index do |row, i| %>
+            <tr>
+              <% row.each_with_index do |e, i| %>
+                <td> <input value="<%= e.to_i %>" type="text" name="board[]" class="input-number"/> </td>
+                <%=  i.to_i % 3 == 2 ? '<td>|</td>' : '' %>
+              <% end %>
+            <%= i % 3 == 2 ? '<tr><td></td></tr><tr><td></td></tr>' : '' %>
+            </tr>
+          <% end %>
+        </table>
+         <input type="checkbox" name="forward" value="1" <%= forward ? 'checked': '' %> >
+        <input type="submit" value='update'>
+      </form>
+    </div>
+
+    <div class="column-right">
+      <% if result[:board] %>
+        <table class='sudoku'>
+          <% result[:board].each_slice(9).each_with_index do |row, i| %>
+            <tr>
+              <% row.each_with_index do |e, i| %>
+                <td> <%= e.to_i %></td>
+                <%=  i.to_i % 3 == 2 ? '<td>|</td>' : '' %>
+              <% end %>
+            <%= i % 3 == 2 ? '<tr><td></td></tr><tr><td></td></tr>' : '' %>
+            </tr>
+          <% end %>
+        </table>
+      <% else %>
+        'no result'
+      <% end %>
+    </div>
+  </div>
+
+
+    Information about run:
+    <ol>
+      <li> Execution time: <strong><%= result.fetch(:run_time) %></strong>s </li>
+      <li> Backtrace count  <strong><%= result.fetch(:bts_count) %> </strong> times </li>
+    </ol>
+</body>

@@ -1,0 +1,138 @@
+<head>
+  <title> GA Charts</title>
+  <script src="js/jsapi.js"></script>
+  <script src="js/chartkick.js"></script>
+  <style>
+    li {
+      line-height: 24px;
+    }
+    .column-container {
+      display: block;
+      clear: both;
+      height: 300px;
+    }
+
+    .column-left {
+      width: 400px;
+      float: left;
+      display: inline-block;
+    }
+    .column-right {
+      width: 400px;
+      display: inline-block;
+    }
+
+
+  </style>
+</head>
+
+<body>
+  <a href="/avg"> Avg stats over 10 executions </a>
+  <div class="column-container">
+    <div class="column-left">
+      Settings:
+      <form action="/" method="get">
+        <ol>
+          <li> Population: <input value="<%= ga.population_size %>" type="text" name='population_size' /> </li>
+          <li> Generations limit: <input value="<%= ga.generations_limit %>" type="text" name='generations_limit' /> </li>
+          <li> Domain min: <input value="<%= ga.min %>" type="text" name='min' /></li>
+          <li> Domain max: <input value="<%= ga.max %>" type="text" name='max' /></li>
+          <li> Crossover probability: <input value="<%= ga.crossover_probability %>" type="text" name='crossover_probability' /> </li>
+          <li> Mutation probability: <input value="<%= ga.mutation_probability %>" type="text" name='mutation_probability' /> </li>
+          <li> Selection probability: <input value="<%= ga.selection_probability %>" type="text" name='selection_probability' /> </li>
+        </ol>
+        <input type="submit" value='update'>
+      </form>
+    </div>
+
+    <div class="column-right">
+      Information about run:
+      <ol>
+        <li> Execution time: <strong><%= data.fetch(:execution_time) %></strong>s </li>
+        <li> Fitness ran  <strong><%= data.fetch(:fitness_count) %> </strong> times </li>
+        <li> Generation count  <strong><%= data.fetch(:generations).count %> </strong> times </li>
+      </ol>
+
+      Information about last generation:
+      <ol>
+        <li> Min individual: <%= data.fetch(:generations).last[:min][:individual] %> with fitness: <%= data.fetch(:generations).last[:min][:fitness] %> </li>
+        <li> Max individual: <%= data.fetch(:generations).last[:max][:individual] %> with fitness: <%= data.fetch(:generations).last[:max][:fitness] %> </li>
+        <li> Standard Deviation of fitness: <%= data.fetch(:generations).last[:standard_deviation] %></li>
+        <li> Average fitness: <%= data.fetch(:generations).last[:average] %>  </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="chart">
+      <%= line_chart data.fetch(:generations).each_with_index.map { |goal, index|
+        [ index, goal[:min][:individual] ]
+      }, discrete: true, min: nil,
+        library: {
+          title: 'Minimal individual( based on fitness) from each population over generations',
+          vAxis: {
+            title: 'individual',
+            gridlines: { count: 20 },
+            format: '#.###'
+          },
+          hAxis: {
+            title: 'generation'
+          }
+        }
+    %>
+  </div>
+
+  <div class="chart">
+      <%= line_chart data.fetch(:generations).each_with_index.map { |goal, index|
+        [ index, goal[:max][:individual] ]
+      }, discrete: true, min: nil,
+        library: {
+          title: 'Maximum individual( based on fitness) from each population over generations',
+          vAxis: {
+            title: 'individual',
+            gridlines: { count: 20 },
+            format: '#.###'
+          },
+          hAxis: {
+            title: 'generation'
+          }
+        }
+    %>
+  </div>
+
+    <div class="chart">
+      <%= line_chart data.fetch(:generations).each_with_index.map { |goal, index|
+        [ index, goal[:average] ]
+      }, discrete: true, min: nil,
+        library: {
+          title: 'standard deviation of fitness over generations',
+          vAxis: {
+            title: 'standard deviation',
+            gridlines: { count: 20 },
+            format: '#.###'
+          },
+          hAxis: {
+            title: 'generation'
+          }
+        }
+    %>
+  </div>
+
+
+    <div class="chart">
+      <%= line_chart data.fetch(:generations).each_with_index.map { |goal, index|
+        [ index, goal[:standard_deviation] ]
+      }, discrete: true, min: nil,
+        library: {
+          title: 'Average of fitness over generations',
+          vAxis: {
+            title: 'Average',
+            gridlines: { count: 20 },
+            format: '#.###'
+          },
+          hAxis: {
+            title: 'generation'
+          }
+        }
+    %>
+  </div>
+</body>

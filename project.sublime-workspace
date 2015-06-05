@@ -1,0 +1,408 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ava",
+				"available_domains"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "require 'pry'\nrequire 'deep_clone'\nSIZE_MATRIX = 9\nLOGS = false\nrequire './sudoku_helpers'\nrequire './element'\n\n$bts_count = 0\n\ndef bts(board, available_domains)\n  $bts_count += 1\n\n  unassigned_element = SudokuHelpers::get_next_empty_element(board, available_domains)\n\n  unless unassigned_element\n    return board\n  end\n\n  # Iterate over available elements of the domain\n  available_domains[unassigned_element.index].each do |domain_value|\n    SudokuHelpers::logln \"Trying to fit: #{domain_value}  #{unassigned_element}\"\n\n      # I'd like to receive new hash of elements with their domain filtered\n    new_available_domains = SudokuHelpers::forward_check unassigned_element,\n      domain_value,\n      board,\n      available_domains\n\n    # in case we've got somewhere empty domain it means we've got wrong domain value,\n    # do nothing, carry on\n    if new_available_domains # domain empty\n          # Deep clone because I don't want to mutate any of the elements in the board\n      copied_board = DeepClone.clone board\n      # Write down value on given location that's \"probably\" good\n      copied_board[unassigned_element.index].value = domain_value\n      result = bts(copied_board, new_available_domains)\n      if result\n        return result\n      end\n    end\n  end\n\n  return nil\nend\n\nwikipedia_board = [\n   5, 3, 0,  0, 7, 0,  0, 0, 0,\n   6, 0, 0,  1, 9, 5,  0, 0, 0,\n   0, 9, 8,  0, 0, 0,  0, 6, 0,\n\n   8, 0, 0,  0, 6, 0,  0, 0, 3,\n   4, 0, 0,  8, 0, 3,  0, 0, 1,\n   7, 0, 0,  0, 2, 0,  0, 0, 6,\n\n   0, 6, 0,  0, 0, 0,  2, 8, 0,\n   0, 0, 0,  4, 1, 9,  0, 0, 5,\n   0, 0, 0,  0, 8, 0,  0, 7, 9]\n# wikipedia_board = [2,0,8,3,0,0,0,6,0,0,0,0,4,0,0,0,0,8,0,0,0,7,0,9,3,0,0,0,0,3,0,0,0,0,2,0,6,0,0,0,0,2,1,0,5,7,1,0,8,0,0,0,0,0,0,0,7,0,4,0,0,0,0,9,4,0,0,6,0,0,0,0,3,6,0,2,0,0,0,5,0]\n# wikipedia_board = [\n# 4,0,0,0,2,5,1,0,7,0,0,6,7,0,0,0,0,0,0,0,5,0,0,0,0,9,0,0,0,0,1,0,8,0,6,0,0,0,7,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,1,\n# 0,0,2,0,9,3,0,0,0,0,0,0,0,0,0,0,5,0,3,4,0,0,1,0,0,0\n# ]\n\nwikipedia_board_solution = [\n   5, 3, 4,  6, 7, 8,  9, 1, 2, # 0\n   6, 7, 2,  1, 9, 5,  3, 4, 8, # 1\n   1, 9, 8,  3, 4, 2,  5, 6, 7, # 2\n\n   8, 5, 9,  7, 6, 1,  4, 2, 3, # 3\n   4, 2, 6,  8, 5, 3,  7, 9, 1, # 4\n   7, 1, 3,  9, 2, 4,  8, 5, 6, # 5\n\n   9, 6, 1,  5, 3, 7,  2, 8, 4, # 6\n   2, 8, 7,  4, 1, 9,  6, 3, 5, # 7\n   3, 4, 5,  2, 8, 6,  1, 7, 9] # 8\n  #0  1  2   3  4  5   6  7  8\n\n# wikipedia_board.each_with_index do |value, index|\n#   ex = \"For: #{wikipedia_board_solution[index]} at #{index}\"\n#   if value == 0\n#     fail ex unless fits_at_col(index, wikipedia_board_solution[index], wikipedia_board)\n#     fail ex unless fits_at_row(index, wikipedia_board_solution[index], wikipedia_board)\n#     fail ex unless fits_at_sqr(index, wikipedia_board_solution[index], wikipedia_board)\n#   end\n# end\n\nsolution = wikipedia_board.clone.each_with_index.map { |e, i| Element.new(e, i) }\n\nSudokuHelpers::print_board(solution)\n\ninitial_domains = {}\n# initialize hash with available domains at each position\nsolution.each do |e| \n  initial_domains[e.index] = e.value == 0 ? (1..9).to_a : nil\nend.reject { |e| initial_domains[e.index].nil? }.each do |e|\n  SudokuHelpers::get_neighbors(e, solution).each do |n|\n    if initial_domains[e.index]\n      initial_domains[e.index] = initial_domains[e.index] - [n.value]\n      if initial_domains[e.index].count == 1\n        e.value = initial_domains[e.index].first\n        initial_domains[e.index] = nil\n      end\n    end\n  end\nend\n\nresult = bts(solution, initial_domains)\n\nif result\n  puts \"solution found:\"\n  SudokuHelpers::print_board(result)\nend\n\n\nputs \"BTS executed count: #{$bts_count}\"\n\n",
+			"file": "lab2/backtrace_forward.rb",
+			"file_size": 3604,
+			"file_write_time": 130715349156030978,
+			"settings":
+			{
+				"buffer_size": 3608,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "lab2/sudoku_helpers.rb",
+			"settings":
+			{
+				"buffer_size": 3452,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "lab2/backtrace.rb",
+			"settings":
+			{
+				"buffer_size": 2378,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/arathunku/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+			"settings":
+			{
+				"buffer_size": 3401,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 180.0,
+		"selected_items":
+		[
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 521.0
+	},
+	"console":
+	{
+		"height": 139.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/arathunku/Dropbox/studia/AI"
+	],
+	"file_history":
+	[
+		"/home/arathunku/Dropbox/studia/AI/lab2/sudoku_helpers.rb",
+		"/home/arathunku/Dropbox/studia/AI/lab2/element.rb",
+		"/home/arathunku/Dropbox/studia/AI/lab1/ga.rb",
+		"/home/arathunku/Dropbox/studia/AI/lab1/brute_force.rb",
+		"/home/arathunku/.config/sublime-text-3/Packages/User/testtest.tmLanguage",
+		"/home/arathunku/.config/sublime-text-3/Packages/User/testtest.YAML-tmLanguage",
+		"/home/arathunku/.config/sublime-text-3/Packages/User/RubyNext.tmLanguage",
+		"/home/arathunku/.config/sublime-text-3/Packages/User/SublimeLinter.sublime-settings",
+		"/home/arathunku/.config/sublime-text-3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+		"/home/arathunku/.config/sublime-text-3/Packages/BeautifyRuby/Default (Linux).sublime-keymap",
+		"/home/arathunku/.config/sublime-text-3/Packages/BeautifyRuby/BeautifyRuby.sublime-settings",
+		"/home/arathunku/.config/sublime-text-3/Packages/User/BeautifyRuby.sublime-settings",
+		"/home/arathunku/.config/sublime-text-3/Packages/SublimeCodeIntel/Default (Linux).sublime-keymap",
+		"/home/arathunku/.config/sublime-text-3/Packages/User/Default (Linux).sublime-keymap",
+		"/home/arathunku/.config/sublime-text-3/Packages/SublimeCodeIntel/SublimeCodeIntel.sublime-settings",
+		"/home/arathunku/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
+		"/home/arathunku/.config/sublime-text-3/Packages/User/Preferences.sublime-settings"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"focus",
+			"  \n"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "lab2/backtrace_forward.rb",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3608,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3608,
+								3608
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content"
+							],
+							"syntax": "Packages/Rails/Ruby on Rails.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "lab2/sudoku_helpers.rb",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3452,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3452,
+								3452
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Rails/Ruby on Rails.tmLanguage"
+						},
+						"translation.x": -0.0,
+						"translation.y": 255.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "lab2/backtrace.rb",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2378,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								295,
+								295
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Rails/Ruby on Rails.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/home/arathunku/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3401,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2305,
+								2305
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/AAAPackageDev/Syntax Definitions/Sublime Settings.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1824.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 112.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.package_dev":
+	{
+		"height": 112.0
+	},
+	"project": "project.sublime-project",
+	"replace":
+	{
+		"height": 46.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 257.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

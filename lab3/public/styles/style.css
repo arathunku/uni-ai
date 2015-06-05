@@ -1,0 +1,35 @@
+.board {
+
+}
+
+.board-elements {
+    width: 400px;
+}
+
+.board-elements-row {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.board-element {
+    height: 50px;
+    width: 50px;
+    display: flex;
+    margin: 2px;
+    border-radius: 50%;
+    background-color: #d1fff3;
+}
+
+.board-element.selectable:hover {
+    background-color: red;
+    cursor: pointer;
+}
+
+.board-element.user {
+    background-color: darkred;
+}
+
+.board-element.computer {
+    background-color: #000;
+}

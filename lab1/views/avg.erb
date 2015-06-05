@@ -1,0 +1,61 @@
+<head>
+  <title> GA Charts</title>
+  <script src="js/jsapi.js"></script>
+  <script src="js/chartkick.js"></script>
+  <style>
+    li {
+      line-height: 24px;
+    }
+    .column-container {
+      display: block;
+      clear: both;
+      height: 300px;
+    }
+
+    .column-left {
+      width: 400px;
+      float: left;
+      display: inline-block;
+    }
+    .column-right {
+      width: 400px;
+      display: inline-block;
+    }
+
+
+  </style>
+</head>
+
+<body>
+  <a href="/"> single run </a>
+  <div class="column-container">
+    <div class="column-left">
+      Settings:
+      <form action="/avg" method="get">
+        <ol>
+          <li> Population: <input value="<%= ga.population_size %>" type="text" name='population_size' /> </li>
+          <li> Generations limit: <input value="<%= ga.generations_limit %>" type="text" name='generations_limit' /> </li>
+          <li> Domain min: <input value="<%= ga.min %>" type="text" name='min' /></li>
+          <li> Domain max: <input value="<%= ga.max %>" type="text" name='max' /></li>
+          <li> Crossover probability: <input value="<%= ga.crossover_probability %>" type="text" name='crossover_probability' /> </li>
+          <li> Mutation probability: <input value="<%= ga.mutation_probability %>" type="text" name='mutation_probability' /> </li>
+          <li> Selection probability: <input value="<%= ga.selection_probability %>" type="text" name='selection_probability' /> </li>
+          <li> Run times: <input value="<%= data[:average_over_runs] %>" type="text" name='n' /> </li>
+        </ol>
+        <input type="submit" value='update'>
+      </form>
+    </div>
+
+    <div class="column-right">
+      Avarages over <%= data[:average_over_runs] %> executions
+      <ol>
+        <li> Min individual: <%= data[:min][:individual] %> with fitness: <%= data[:min][:fitness] %> </li>
+        <li> Max individual: <%= data[:max][:individual] %> with fitness: <%= data[:max][:fitness] %> </li>
+        <li> Standard Deviation : <%= data[:standard_deviation] %> </li>
+        <li> Average: <%= data[:average] %>  </li>
+        <li> Execution time: <strong><%= data[:execution_time] %></strong>s </li>
+        <li> Fitness ran  <strong><%= data[:fitness_count] %> </strong> times </li>
+      </ol>
+    </div>
+  </div>
+</body>
